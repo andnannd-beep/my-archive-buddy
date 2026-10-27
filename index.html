@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Archive Buddy 🗂️</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <span class="logo">🗂️ My Archive Buddy</span>
+      <p class="tagline">Your cute, cozy archive manager</p>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ===== DASHBOARD STATS ===== -->
+    <section class="dashboard" aria-label="Archive statistics">
+      <div class="stat-card" id="stat-total">
+        <span class="stat-icon">📦</span>
+        <span class="stat-number" id="count-total">0</span>
+        <span class="stat-label">Total Archives</span>
+      </div>
+      <div class="stat-card" id="stat-active">
+        <span class="stat-icon">✅</span>
+        <span class="stat-number" id="count-active">0</span>
+        <span class="stat-label">Active</span>
+      </div>
+      <div class="stat-card" id="stat-inactive">
+        <span class="stat-icon">📭</span>
+        <span class="stat-number" id="count-inactive">0</span>
+        <span class="stat-label">Inactive</span>
+      </div>
+      <div class="stat-card" id="stat-transferred">
+        <span class="stat-icon">📤</span>
+        <span class="stat-number" id="count-transferred">0</span>
+        <span class="stat-label">Transferred</span>
+      </div>
+    </section>
+
+    <!-- ===== ADD / EDIT FORM ===== -->
+    <section class="card form-card" aria-label="Archive form">
+      <h2 id="form-title" class="section-title">➕ Add New Archive</h2>
+
+      <!-- Notification banner (hidden by default) -->
+      <div id="form-notification" class="notification hidden" role="alert" aria-live="polite"></div>
+
+      <form id="archive-form" novalidate>
+        <!-- Hidden field stores the ID of the record being edited -->
+        <input type="hidden" id="edit-id" value="" />
+
+        <div class="form-grid">
+          <!-- Archive Number -->
+          <div class="form-group">
+            <label for="archive-number">Archive Number <span class="required">*</span></label>
+            <input
+              type="text"
+              id="archive-number"
+              placeholder="e.g. ARC-2024-001"
+              maxlength="50"
+              autocomplete="off"
+            />
+            <span class="field-error" id="err-archive-number"></span>
+          </div>
+
+          <!-- Document Title -->
+          <div class="form-group">
+            <label for="doc-title">Document Title <span class="required">*</span></label>
+            <input
+              type="text"
+              id="doc-title"
+              placeholder="e.g. Annual Budget Report"
+              maxlength="100"
+              autocomplete="off"
+            />
+            <span class="field-error" id="err-doc-title"></span>
+          </div>
+
+          <!-- Category -->
+          <div class="form-group">
+            <label for="category">Category <span class="required">*</span></label>
+            <select id="category">
+              <option value="">— Select category —</option>
+              <option value="Finance">Finance</option>
+              <option value="HR">HR</option>
+              <option value="Legal">Legal</option>
+              <option value="Operations">Operations</option>
+              <option value="Correspondence">Correspondence</option>
+              <option value="Other">Other</option>
+            </select>
+            <span class="field-error" id="err-category"></span>
+          </div>
+
+          <!-- Document Date -->
+          <div class="form-group">
+            <label for="doc-date">Document Date <span class="required">*</span></label>
+            <input type="date" id="doc-date" />
+            <span class="field-error" id="err-doc-date"></span>
+          </div>
+
+          <!-- Status -->
+          <div class="form-group">
+            <label for="status">Status <span class="required">*</span></label>
+            <select id="status">
+              <option value="">— Select status —</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Transferred">Transferred</option>
+            </select>
+            <span class="field-error" id="err-status"></span>
+          </div>
+        </div>
+
+        <!-- Form Action Buttons -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="submit-btn">💾 Save Archive</button>
+          <button type="button" class="btn btn-secondary" id="cancel-btn">✖ Cancel</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ===== RECORDS TABLE ===== -->
+    <section class="card table-card" aria-label="Archive records">
+      <div class="table-header">
+        <h2 class="section-title">📋 Archive Records</h2>
+
+        <!-- Search and Filters -->
+        <div class="filters">
+          <input
+            type="search"
+            id="search-input"
+            placeholder="🔍 Search by number or title…"
+            aria-label="Search archives"
+            autocomplete="off"
+          />
+          <select id="filter-status" aria-label="Filter by status">
+            <option value="">All Statuses</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Transferred">Transferred</option>
+          </select>
+          <select id="filter-category" aria-label="Filter by category">
+            <option value="">All Categories</option>
+            <option value="Finance">Finance</option>
+            <option value="HR">HR</option>
+            <option value="Legal">Legal</option>
+            <option value="Operations">Operations</option>
+            <option value="Correspondence">Correspondence</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Result count -->
+      <p class="result-count" id="result-count" aria-live="polite"></p>
+
+      <!-- Records Table -->
+      <div class="table-wrapper" role="region" aria-label="Scrollable archive table" tabindex="0">
+        <table id="archive-table" aria-describedby="result-count">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Archive No.</th>
+              <th scope="col">Document Title</th>
+              <th scope="col">Category</th>
+              <th scope="col">Date</th>
+              <th scope="col">Status</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <!-- Rows injected by script.js -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty state message -->
+      <div id="empty-state" class="empty-state hidden" aria-live="polite">
+        <span class="empty-icon">🗃️</span>
+        <p>No archives found. Try adjusting your filters or add a new record above!</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="site-footer">
+    <p>Made with 💖 · My Archive Buddy · Data stored in your browser's localStorage</p>
+  </footer>
+
+  <!-- Delete confirmation dialog -->
+  <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-inner">
+      <span class="dialog-icon">🗑️</span>
+      <h3 id="dialog-title">Delete Archive?</h3>
+      <p id="dialog-message">Are you sure you want to delete this record? This cannot be undone.</p>
+      <div class="dialog-actions">
+        <button id="dialog-confirm" class="btn btn-danger">Yes, Delete</button>
+        <button id="dialog-cancel" class="btn btn-secondary">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
